@@ -1,102 +1,96 @@
 # Dataset Metadata
 
-## 1. Dataset Overview
+The dataset used for this project contains surgical encounter records from Operating Room (OR) operations. The dataset was used to study surgical volume, OR workload, procedure duration, OR occupancy, scheduling delays, and booked versus actual OR time.
 
-**Project:** Operating Room Efficiency Investigation
+The analysis covers the period from January 3, 2022 to March 31, 2022.
 
-The project uses a surgical encounter dataset containing Operating Room scheduling, procedure, and timestamp information. Each row represents one surgical encounter.
+The dataset contains 2,172 surgical encounters and 12 original columns. Each row represents one surgical encounter, and the `encounter_id` is used as the unique identifier for each encounter.
 
-**Analysis period:** January 3, 2022 – March 31, 2022
 
-**Records:** 2,172 surgical encounters
+## Column Description
 
-**Original columns:** 12
+1. encounter_id: The 'encounter_id' column contains a unique identification number for each surgical encounter.
 
-**OR suites:** 8
+2. surgery_date: The 'surgery_date' column contains the date on which the surgery was performed.
 
-**Medical services/specialties:** 10
+3. or_suite: The 'or_suite' column identifies the Operating Room suite where the surgical encounter took place.
 
-**CPT procedure types:** 32
+4. service: The 'service' column identifies the medical specialty or service associated with the surgical encounter.
 
-**Operating dates:** 62
+5. cpt_code: The 'cpt_code' column contains the CPT code associated with the surgical procedure.
 
-## 2. Dataset Source
+6. cpt_description: The 'cpt_description' column contains the description of the surgical procedure.
 
-**Source:** Kaggle — Operating Room Utilization dataset  
-**Kaggle URL:** https://www.kaggle.com/datasets/thedevastator/optimizing-operating-room-utilization
+7. booked_time_min: The 'booked_time_min' column contains the planned time booked for the procedure, measured in minutes.
 
-**Original dataset/file:** `2022_Q1_OR_Utilization.csv`
+8. or_schedule: The 'or_schedule' column contains the scheduled time for the surgery.
 
-**Original author:** Jennifer Falk
+9. wheels_in: The 'wheels_in' column contains the time when the patient entered the Operating Room.
 
-The repository retains the source attribution. Redistribution and adaptation should follow the licensing terms stated on the original Kaggle dataset page.
+10. start_time: The 'start_time' column contains the actual time when the surgical procedure started.
 
-## 3. Original Columns
+11. end_time: The 'end_time' column contains the actual time when the surgical procedure ended.
 
-| Column | Description |
-|---|---|
-| encounter_id | Unique identifier for the surgical encounter |
-| surgery_date | Date on which the surgery was performed |
-| or_suite | Operating Room suite where the encounter took place |
-| service | Medical specialty/service associated with the encounter |
-| cpt_code | CPT code associated with the procedure |
-| cpt_description | Description of the surgical procedure |
-| booked_time_min | Planned/booked procedure time in minutes |
-| or_schedule | Scheduled OR time |
-| wheels_in | Time the patient entered the Operating Room |
-| start_time | Actual procedure start time |
-| end_time | Actual procedure end time |
-| wheels_out | Time the patient left the Operating Room |
+12. wheels_out: The 'wheels_out' column contains the time when the patient left the Operating Room.
 
-## 4. Derived Analysis Fields
 
-Three fields were created during SQL preparation:
+## Derived Columns
 
-| Derived field | Definition |
-|---|---|
-| procedure_duration_min | `end_time - start_time` |
-| or_occupancy_min | `wheels_out - wheels_in` |
-| schedule_delay_min | `start_time - or_schedule` |
+Three additional columns were created during the SQL data preparation stage.
 
-For schedule delay, a positive value means the procedure started after the scheduled OR time, while a negative value means it started before the scheduled OR time.
+1. procedure_duration_min: This column contains the actual procedure duration in minutes. It is calculated from the difference between `start_time` and `end_time`.
 
-## 5. Data Validation
+2. or_occupancy_min: This column contains the OR occupancy time in minutes. It is calculated from the difference between `wheels_in` and `wheels_out`.
 
-The dataset was checked before business analysis. Validation included:
+3. schedule_delay_min: This column contains the scheduling delay in minutes. It is calculated from the difference between the scheduled time (`or_schedule`) and the actual procedure start time (`start_time`).
 
-- Total record count
-- Distinct encounter IDs
-- NULL values
-- Duplicate encounter IDs
-- Booked-time values greater than zero
-- Actual OR timestamp consistency
 
-Validation confirmed:
+## Dataset Validation
 
-- No NULL values in the source dataset
-- No duplicate encounter IDs
-- All 2,172 encounter IDs are unique
-- No booked-time values less than or equal to zero
-- The actual OR timeline follows `wheels_in → start_time → end_time → wheels_out`
+The dataset was checked before carrying out the business analysis.
 
-The scheduled OR time is evaluated separately through `schedule_delay_min`. It is not assumed that scheduled time must always occur before wheels-in.
+The validation included:
 
-## 6. Dataset Limitations
+1. Total record count check.
 
-The dataset does not provide total available OR capacity hours for each suite. Therefore, a true OR utilization percentage cannot be calculated.
+2. Distinct encounter ID check.
 
-The available data can identify workload and scheduling patterns, but it cannot establish specific causes behind delays or workload differences. For example, the dataset does not contain enough information to conclude whether delays were caused by staffing, equipment, surgeon availability, patient factors, or other operational causes.
+3. NULL value check for the main dataset fields.
 
-## 7. Privacy Note
+4. Duplicate encounter ID check.
 
-The dataset schema does not contain obvious direct patient fields such as patient name, address, phone number, email address, or medical record number. However, it contains encounter-level healthcare information, timestamps, CPT/procedure information, and an encounter identifier.
+5. Validation of booked time to make sure the value was greater than zero.
 
-Use and redistribution should therefore follow the source dataset's licensing terms and any applicable data-use restrictions.
+6. Validation of the surgical timeline.
 
-## 8. Attribution
+The expected timeline used for validation was:
 
-This project uses the **Operating Room Utilization** dataset published on Kaggle by **The Devastator**, with the source credited to **Jennifer Falk**.
+`or_schedule → wheels_in → start_time → end_time → wheels_out`
+
+The dataset passed the validation checks. No NULL values, duplicate encounter IDs, or invalid time sequences were found, and no data imputation or unnecessary data cleaning was required.
+
+
+## Dataset Limitations
+
+The dataset contains information about surgical encounters, OR occupancy, procedure timing, and scheduling. However, OR capacity hours are not available in the dataset.
+
+Because of this, OR utilization percentage cannot be calculated.
+
+The available data can be used to identify workload and scheduling patterns, but it cannot be used to establish the specific causes behind scheduling delays or differences in OR workload.
+
+For example, the dataset does not contain information that would allow the analysis to conclude whether a delay was caused by staffing, equipment, surgeon availability, patient factors, or other operational reasons.
+
+
+## 7. Source and Attribution
+
+This project uses the Operating Room Utilization dataset published on Kaggle by The Devastator.
 
 **Source:** https://www.kaggle.com/datasets/thedevastator/optimizing-operating-room-utilization
 
-Please refer to the original Kaggle dataset page for the current license and attribution requirements.
+**Original author:** Jennifer Falk
+
+The dataset should be redistributed and adapted according to the licensing terms stated on the original Kaggle dataset page. This repository retains the source attribution so the origin of the dataset is clear.
+
+## 8. Privacy Note
+
+The dataset schema used in this project does not contain obvious direct patient fields such as patient name, address, phone number, email address, or medical record number. However, it contains encounter-level healthcare information, timestamps, CPT/procedure information, and an encounter identifier. Use and redistribution should follow the source dataset's licensing terms and any applicable data-use restrictions.
